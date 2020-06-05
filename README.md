@@ -2,4 +2,4 @@
 
 - [x] par0
 - [x] part1
-- [] part2
+- [ ] part2
