@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import Note from './components/Note'
+
+import noteService from './services/notes'
+
 const App = () => {
   const [notes, setNotes] = useState([])
-  const [newNote, setNewNote] = useState('a new state...')
+  const [newNote, setNewNote] = useState('')
   const [showAll, setShowAll] = useState(true)
 
   useEffect(() => {
     // console.log('effect')
-    axios.get('http://localhost:3001/notes').then((res) => {
+    noteService.getAll().then((initialNotes) => {
       // console.log('promise fulfilled')
-      setNotes(res.data)
+      setNotes(initialNotes)
     })
   }, [])
   // console.log('render', notes.length, 'notes')
@@ -25,9 +27,8 @@ const App = () => {
       // 让服务器生成id
       // id: notes.length + 1,
     }
-    axios.post('http://localhost:3001/notes', noteObject).then((res) => {
-      console.log('res', res)
-      setNotes(notes.concat(res.data))
+    noteService.create(noteObject).then((returnedNote) => {
+      setNotes(notes.concat(returnedNote))
       setNewNote('')
     })
   }
@@ -42,12 +43,17 @@ const App = () => {
 
   // 切换note重要性
   const toggleImportanceOf = (id) => {
-    const url = `http://localhost:3001/notes/${id}`
     const note = notes.find((n) => n.id === id)
     const changeNote = { ...note, important: !note.important }
-    axios.put(url, changeNote).then((res) => {
-      setNotes(notes.map((note) => (note.id !== id ? note : res.data)))
-    })
+    noteService
+      .update(id, changeNote)
+      .then((returnedNote) => {
+        setNotes(notes.map((note) => (note.id !== id ? note : returnedNote)))
+      })
+      .catch((error) => {
+        alert(`the note '${note.content}' was already deleted from server`)
+        setNotes(notes.filter((note) => note.id !== id))
+      })
     console.log('import', id)
   }
   return (
@@ -72,7 +78,11 @@ const App = () => {
         ))}
       </ul>
       <form onSubmit={addNote}>
-        <input value={newNote} onChange={handleNoteChange} />
+        <input
+          value={newNote}
+          onChange={handleNoteChange}
+          placeholder="a new values..."
+        />
         <button type="submit">save</button>
       </form>
     </div>
