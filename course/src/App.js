@@ -1,12 +1,30 @@
 import React, { useState, useEffect } from 'react'
 import Note from './components/Note'
+import Notification from './components/Notification'
 
 import noteService from './services/notes'
+
+const Footer = () => {
+  const footerStyle = {
+    color: 'green',
+    fontSize: 16,
+    fontStyle: 'italic',
+  }
+  return (
+    <div style={footerStyle}>
+      <br />
+      <em>
+        Note app, Department of Computer Science, University of Helsinki 2020
+      </em>
+    </div>
+  )
+}
 
 const App = () => {
   const [notes, setNotes] = useState([])
   const [newNote, setNewNote] = useState('')
   const [showAll, setShowAll] = useState(true)
+  const [errorMessage, setErrotMessage] = useState('some error happened...')
 
   useEffect(() => {
     // console.log('effect')
@@ -51,7 +69,12 @@ const App = () => {
         setNotes(notes.map((note) => (note.id !== id ? note : returnedNote)))
       })
       .catch((error) => {
-        alert(`the note '${note.content}' was already deleted from server`)
+        setErrotMessage(
+          `the note '${note.content}' was already deleted from server`
+        )
+        setTimeout(() => {
+          setErrotMessage(null)
+        }, 5000)
         setNotes(notes.filter((note) => note.id !== id))
       })
     console.log('import', id)
@@ -59,6 +82,7 @@ const App = () => {
   return (
     <div>
       <h1>Notes</h1>
+      <Notification message={errorMessage}></Notification>
       <div>
         <button
           onClick={() => {
@@ -85,6 +109,7 @@ const App = () => {
         />
         <button type="submit">save</button>
       </form>
+      <Footer></Footer>
     </div>
   )
 }
