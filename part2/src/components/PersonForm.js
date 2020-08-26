@@ -1,19 +1,37 @@
 import React, { useState } from 'react'
-
+import personServices from '../services/persons'
 const PersonForm = ({ persons, setPersons }) => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
 
   const add = (event) => {
     event.preventDefault()
-    const isHave = persons.some((person) => person.name === newName)
-    console.log(isHave)
-    if (isHave) {
-      alert(`${newName} is already added to phonebook`)
+    const itemPerson = persons.find((person) => person.name === newName)
+    console.log(itemPerson)
+    if (itemPerson) {
+      if (
+        window.confirm(
+          `${newName} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
+        personServices
+          .update(itemPerson.id, {
+            name: newName,
+            number: newNumber,
+          })
+          .then((res) => {
+            setPersons(
+              persons.map((item) => (item.id !== itemPerson.id ? item : res))
+            )
+          })
+      }
       return
     }
-    setPersons([...persons, { name: newName, number: newNumber }])
-    setNewName('')
+    const personObj = { name: newName, number: newNumber }
+    personServices.create(personObj).then((res) => {
+      setPersons([...persons, res])
+      setNewName('')
+    })
   }
 
   const handleChangeName = (event) => {
