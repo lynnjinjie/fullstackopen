@@ -24,7 +24,7 @@ const App = () => {
   const [notes, setNotes] = useState([])
   const [newNote, setNewNote] = useState('')
   const [showAll, setShowAll] = useState(true)
-  const [errorMessage, setErrotMessage] = useState('some error happened...')
+  const [errorMessage, setErrotMessage] = useState(null)
 
   useEffect(() => {
     // console.log('effect')
