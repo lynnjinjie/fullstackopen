@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import personServices from '../services/persons'
-const PersonForm = ({ persons, setPersons }) => {
+const PersonForm = ({ persons, setPersons, setErrorMessage }) => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
 
@@ -23,6 +23,14 @@ const PersonForm = ({ persons, setPersons }) => {
             setPersons(
               persons.map((item) => (item.id !== itemPerson.id ? item : res))
             )
+          })
+          .catch((error) => {
+            setErrorMessage(
+              ` Information of ${itemPerson.name} has already been removed from server`
+            )
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 5000)
           })
       }
       return
