@@ -1,7 +1,15 @@
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
 
 app.use(express.json())
+
+morgan.token('type', function (req, res) {
+  return JSON.stringify(req.body)
+})
+morgan.format('joke', ':method :url :status - :response-time ms :type')
+
+app.use(morgan('joke'))
 
 let persons = [
   { name: 'Arto Hellas', number: '040-123456', id: 1 },
@@ -38,7 +46,6 @@ app.delete('/api/persons/:id', (req, res) => {
 
 app.post('/api/persons', (req, res) => {
   const body = req.body
-  console.log('body', req.body)
   const id = Math.random() * 1000
   if (!body.name || !body.number) {
     res.status(400).json({
@@ -57,7 +64,6 @@ app.post('/api/persons', (req, res) => {
     number: body.number,
   }
   persons = persons.concat(person)
-  console.log(person)
   res.json(persons)
 })
 
