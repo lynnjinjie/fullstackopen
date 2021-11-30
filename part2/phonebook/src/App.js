@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react'
 import Filter from './components/filter'
 import PersonForm from './components/personForm'
 import Persons from './components/persons'
+import Notification from './components/Notification'
 import { getAll, create, remove, update } from './services/person'
+import './index.css'
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
-
+  const [message, setMessage] = useState(null)
+  const [msgType, setMsgType] = useState('success')
   useEffect(() => {
     console.log(getAll())
     getAll().then((data) => {
@@ -60,9 +63,19 @@ const App = () => {
         update(isHavePeron.id, {
           name: newName,
           number: newNumber,
-        }).then((data) => {
-          setPersons(persons.map((p) => (p.id !== data.id ? p : data)))
         })
+          .then((data) => {
+            setPersons(persons.map((p) => (p.id !== data.id ? p : data)))
+          })
+          .catch((error) => {
+            setMessage(
+              `Information of ${isHavePeron.name} has already been removed from server`
+            )
+            setMsgType('fail')
+            setTimeout(() => {
+              setMessage(null)
+            }, 2000)
+          })
       }
       return
     }
@@ -73,6 +86,11 @@ const App = () => {
     }
     create(newPerson).then((data) => {
       setPersons(persons.concat(data))
+      setMessage(`Added ${data.name}`)
+      setMsgType('success')
+      setTimeout(() => {
+        setMessage(null)
+      }, 2000)
     })
   }
   const handleDelItem = (item) => {
@@ -85,6 +103,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} type={msgType}></Notification>
       <Filter handleFilterName={handleFilterName} />
       <h2>add a new</h2>
       <PersonForm
