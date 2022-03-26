@@ -69,7 +69,7 @@ app.delete('/api/persons/:id', (req, res, next) =>  {
 //   return maxId
 // }
 // post
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
   const body = req.body
 
   if (!body.name) res.status(400).json({error:'missing name'}).end()
@@ -78,14 +78,7 @@ app.post('/api/persons', (req, res) => {
   Phonebook.find({}).then(persons => {
     const findPerson = persons.find(person => person.name === body.name)
     if (findPerson) {
-      const person = {
-        name: body.name,
-        number: body.number
-      }
-      Phonebook.findByIdAndUpdate(findPerson.id, person, {new: true})
-               .then(updatePhonebook => {
-                 res.json(updatePhonebook)
-               }).catch(error => next(error))
+      res.status(400).end()
     } else {
       const person = new Phonebook({
         name: body.name,
@@ -93,12 +86,9 @@ app.post('/api/persons', (req, res) => {
       })
       person.save().then(savedPerosn => {
         res.json(savedPerosn)
-      }) 
+      }).catch(error => next(error))
     }
   })
-  // person.save().then(savedPerosn => {
-  //   res.json(savedPerosn)
-  // }) 
 })
 
 // update
@@ -122,8 +112,10 @@ app.listen(PORT, () => {
 // 错误处理
 const errorHandler = ( error, req, res, next) => {
   console.error(error.message)
-  if (error.name === 'CastError' && error.kind === 'ObjectId') {
+  if (error.name === 'CastError') {
     return  res.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return res.status(400).json(error.message)
   }
   next(error)
 }

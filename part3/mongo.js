@@ -11,7 +11,11 @@ const url = `mongodb+srv://fullstack:${password}@cluster0.eympu.mongodb.net/myFi
 mongoose.connect(url)
 // schema
 const PhonebookSchema = new mongoose.Schema({
-  name: String,
+  name: {
+    type: String,
+    minlength: 3,
+    required: true
+  },
   number: String
 })
 // model

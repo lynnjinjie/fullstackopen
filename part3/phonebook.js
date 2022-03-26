@@ -9,8 +9,29 @@ mongoose.connect(url).then(result => {
 })
 
 const PhonebookSchema = new mongoose.Schema({
-  name: String,
-  number: String
+  name: {
+    type: String,
+    minlength: 3,
+    required: true
+  },
+  number: {
+    type: String,
+    validate: {
+      validator: function(v) {
+        const arr = v.split('-')
+        const numLen = arr.join().length
+        if (arr.length === 1) {
+          return numLen > 8
+        } else if (arr.length === 2) {
+          const headLen = arr[0].length
+          return headLen >= 2 && headLen <= 3 && numLen > 8
+        } else if (arr.length > 2) {
+          return false
+        }
+      }
+    },
+    required: true
+  }
 })
 
 PhonebookSchema.set('toJSON', {
