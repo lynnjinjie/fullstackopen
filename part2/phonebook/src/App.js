@@ -91,6 +91,9 @@ const App = () => {
       setTimeout(() => {
         setMessage(null)
       }, 2000)
+    }).catch(error => {
+      setMessage(error.response.data)
+      setMsgType('fail')
     })
   }
   const handleDelItem = (item) => {
