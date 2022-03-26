@@ -43,9 +43,11 @@ app.get('/api/persons', (req, res) => {
 
 // get info
 app.get('/info', (req, res) => {
-  res.send(
-    `<div>Phonebook has info for ${persons.length} people</div> <div>${new Date()}</div>`
-  )
+  Phonebook.find({}).then(persons => {
+    res.send(
+      `<div>Phonebook has info for ${persons.length} people</div> <div>${new Date()}</div>`
+    )
+  })
 })
 
 // get by id
@@ -56,8 +58,10 @@ app.get('/api/persons/:id', (req, res) => {
 })
 
 // delete by id
-app.delete('/api/persons/:id', (req, res) =>  {
-  Phonebook.deleteOne({id: req.params.id})
+app.delete('/api/persons/:id', (req, res, next) =>  {
+  Phonebook.findByIdAndRemove(req.params.id).then(result => {
+    res.status(204).end()
+  }).catch(error => next(error))
 })
 
 // const generateId = () => {
@@ -70,16 +74,57 @@ app.post('/api/persons', (req, res) => {
 
   if (!body.name) res.status(400).json({error:'missing name'}).end()
   if (!body.number) res.status(400).json({error:'missing number'}).end()
-  const person = new Phonebook({
+  // 如果name已经存在，则更新
+  Phonebook.find({}).then(persons => {
+    const findPerson = persons.find(person => person.name === body.name)
+    if (findPerson) {
+      const person = {
+        name: body.name,
+        number: body.number
+      }
+      Phonebook.findByIdAndUpdate(findPerson.id, person, {new: true})
+               .then(updatePhonebook => {
+                 res.json(updatePhonebook)
+               }).catch(error => next(error))
+    } else {
+      const person = new Phonebook({
+        name: body.name,
+        number: body.number,
+      })
+      person.save().then(savedPerosn => {
+        res.json(savedPerosn)
+      }) 
+    }
+  })
+  // person.save().then(savedPerosn => {
+  //   res.json(savedPerosn)
+  // }) 
+})
+
+// update
+app.put('/api/persons/:id', (req, res, next) => {
+  const body = req.body
+  const person = {
     name: body.name,
-    number: body.number,
-  })
-  person.save().then(savedPerosn => {
-    res.json(savedPerosn)
-  })
+    number: body.number
+  }
+  Phonebook.findByIdAndUpdate(req.params.id, person, {new: true})
+           .then(updatePhonebook => {
+             res.json(updatePhonebook)
+           }).catch(error => next(error))
 })
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`server is listen in port: ${PORT}`)
 })
+
+// 错误处理
+const errorHandler = ( error, req, res, next) => {
+  console.error(error.message)
+  if (error.name === 'CastError' && error.kind === 'ObjectId') {
+    return  res.status(400).send({ error: 'malformatted id' })
+  }
+  next(error)
+}
+app.use(errorHandler)
