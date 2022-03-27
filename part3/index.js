@@ -6,7 +6,7 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 app.use(express.static('build'))
-morgan.token('req', (req, res) =>{
+morgan.token('req', (req) =>{
   return JSON.stringify(req.body)
 })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :req'))
@@ -59,7 +59,7 @@ app.get('/api/persons/:id', (req, res) => {
 
 // delete by id
 app.delete('/api/persons/:id', (req, res, next) =>  {
-  Phonebook.findByIdAndRemove(req.params.id).then(result => {
+  Phonebook.findByIdAndRemove(req.params.id).then(() => {
     res.status(204).end()
   }).catch(error => next(error))
 })
@@ -99,9 +99,9 @@ app.put('/api/persons/:id', (req, res, next) => {
     number: body.number
   }
   Phonebook.findByIdAndUpdate(req.params.id, person, {new: true})
-           .then(updatePhonebook => {
-             res.json(updatePhonebook)
-           }).catch(error => next(error))
+    .then(updatePhonebook => {
+      res.json(updatePhonebook)
+    }).catch(error => next(error))
 })
 
 const PORT = process.env.PORT || 3001

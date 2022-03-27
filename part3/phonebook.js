@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const url = process.env.MONGODB_URL
 
-mongoose.connect(url).then(result => {
+mongoose.connect(url).then(() => {
   console.log('connect to mongodb success')
 }).catch(error => {
   console.log('connect error mes:', error.message)

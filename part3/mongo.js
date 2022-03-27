@@ -25,7 +25,7 @@ const phonebook = new Phonebook({
   number: process.argv[4]
 })
 // close
-phonebook.save().then(result => {
+phonebook.save().then(() => {
   console.log('phonebook saved!')
   mongoose.connection.close()
 })
