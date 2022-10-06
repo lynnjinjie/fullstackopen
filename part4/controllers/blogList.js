@@ -62,6 +62,8 @@ blogListRouter.delete('/:id', userExtractor, async (request, response) => {
 blogListRouter.put('/:id', async (request, response) => {
   const body = request.body
 
+  console.log('back id', request.params.id)
+  console.log('back body', JSON.stringify(body))
   const blog = {
     likes: body.likes
   }

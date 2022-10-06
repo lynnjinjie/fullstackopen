@@ -1,25 +1,23 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import Notification from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import BlogForm from './components/BlogForm'
+import Toggleable from './components/Toggleable'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
-  const [like, setLike] = useState('')
   const [message, setMessage] = useState(null)
   const [messageStatus, setMessageStatus] = useState('')
   const [username, setUserName] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
 
+  const blogFormRef = useRef()
+
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )  
+    getAllBlogs() 
   }, [])
 
   useEffect(() => {
@@ -30,6 +28,11 @@ const App = () => {
       blogService.setToken(user.token)
     }
   }, [])
+
+  const getAllBlogs = async () => {
+    const blogs = await blogService.getAll()
+    setBlogs(blogs.sort((a, b) => b.likes - a.likes))
+  }
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -54,15 +57,9 @@ const App = () => {
     window.localStorage.removeItem('loggedUserInfo')
     setUser(null)
   }
-  const createBlog = async (event) => {
-    event.preventDefault()
+  const createBlog = async (newBlog) => {
     try {
-      const blog = await blogService.create({
-        title,
-        author,
-        url,
-        like
-      })
+      const blog = await blogService.create(newBlog)
       setBlogs(blogs.concat(blog))
       setMessage(`a new blog You're NOT gonna need it! by ${blog.author} added`)
       setMessageStatus('success')
@@ -70,10 +67,25 @@ const App = () => {
         setMessage(null)
         setMessageStatus('')
       }, 5000);
+      blogFormRef.current.toggleVisibility()
     } catch (error) {
       console.log('error',error)
     }
   }
+
+  // 点赞喜欢
+  const changeLikes = async (id, changeBlog) => {
+    const res = await blogService.update(id, changeBlog)
+    // setBlogs(blogs.map((item) => item.id === res.id ? res : item))
+    getAllBlogs()
+  }
+
+  // 移除当前作者的blog
+  const delBlog = async (id) => {
+    const res = await blogService.remove(id)
+    getAllBlogs()
+  }
+
   const loginForm = () => (
     <div>
       <h2>Log in to application</h2>
@@ -106,48 +118,11 @@ const App = () => {
       <h2>blogs</h2>
       <Notification message={message} status={messageStatus} />
       <div>{user.name} logged in <button onClick={handleLogout}>logout</button></div>
-      <h2>create new</h2>
-      <form onSubmit={createBlog}>
-        <div>
-          title:
-          <input
-           type="text"
-           value={title}
-           name="Title"
-           onChange={({target}) => setTitle(target.value)}
-          />
-        </div>
-         <div>
-          author:
-          <input
-           type="text"
-           value={author}
-           name="Author"
-           onChange={({target}) => setAuthor(target.value)}
-          />
-        </div>
-        <div>
-          url:
-          <input
-           type="text"
-           value={url}
-           name="Url"
-           onChange={({target}) => setUrl(target.value)}
-          />
-        </div>
-        <div>
-          like:
-          <input
-           type="text"
-           value={like}
-           name="Like"
-           onChange={({target}) => setLike(target.value)}
-          />
-        </div>
-        <button type='submit'>create</button>
-      </form>
+      <Toggleable buttonLabel="create new blog" ref={blogFormRef}>
+        <BlogForm createBlog={createBlog}></BlogForm>
+      </Toggleable> 
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} user={user} changeLikes={changeLikes} delBlog={delBlog} />
       )}
     </div>
   )
