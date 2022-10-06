@@ -1,10 +1,9 @@
-import {useState} from 'react'
-import blogService from '../services/blogs'
+import { useState } from 'react'
 
-const Blog = ({blog, user, changeLikes, delBlog}) => {
+const Blog = ({ blog, user, changeLikes, delBlog }) => {
   const [visible, setVisible] = useState(false)
 
-  const blogUser = blog.user || {username: ''}
+  const blogUser = blog.user || { username: '' }
 
   const blogStyle = {
     paddingTop: 10,
@@ -45,14 +44,14 @@ const Blog = ({blog, user, changeLikes, delBlog}) => {
         {blog.title} {blog.author}
         <button onClick={toggleVisible}>{visible ? 'hide' : 'view'}</button>
       </div>
-      <div style={{display: visible ? '' : 'none'}}>
+      <div style={{ display: visible ? '' : 'none' }}>
         <div>{blog.url}</div>
         <div>likes {blog.likes} <button onClick={handleLike}>like</button></div>
         <div>{blogUser.username}</div>
-        <button style={{...removeStyle, display: isCurrentAuthor() ? '' : 'none'}} onClick={removeBlog}>remove</button>
+        <button style={{ ...removeStyle, display: isCurrentAuthor() ? '' : 'none' }} onClick={removeBlog}>remove</button>
       </div>
     </div>
-  ) 
+  )
 }
 
 export default Blog

@@ -17,7 +17,7 @@ const App = () => {
   const blogFormRef = useRef()
 
   useEffect(() => {
-    getAllBlogs() 
+    getAllBlogs()
   }, [])
 
   useEffect(() => {
@@ -36,9 +36,9 @@ const App = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault()
-    
+
     try {
-      const user = await loginService.login({username, password})
+      const user = await loginService.login({ username, password })
       window.localStorage.setItem('loggedUserInfo', JSON.stringify(user))
       blogService.setToken(user.token)
       setUser(user)
@@ -50,7 +50,7 @@ const App = () => {
       setTimeout(() => {
         setMessage(null)
         setMessageStatus('')
-      }, 5000);
+      }, 5000)
     }
   }
   const handleLogout = () => {
@@ -66,7 +66,7 @@ const App = () => {
       setTimeout(() => {
         setMessage(null)
         setMessageStatus('')
-      }, 5000);
+      }, 5000)
       blogFormRef.current.toggleVisibility()
     } catch (error) {
       console.log('error',error)
@@ -75,14 +75,13 @@ const App = () => {
 
   // 点赞喜欢
   const changeLikes = async (id, changeBlog) => {
-    const res = await blogService.update(id, changeBlog)
-    // setBlogs(blogs.map((item) => item.id === res.id ? res : item))
+    await blogService.update(id, changeBlog)
     getAllBlogs()
   }
 
   // 移除当前作者的blog
   const delBlog = async (id) => {
-    const res = await blogService.remove(id)
+    await blogService.remove(id)
     getAllBlogs()
   }
 
@@ -94,19 +93,19 @@ const App = () => {
         <div>
           username
           <input
-           type="text"
-           value={username}
-           name="Username"
-           onChange={({target}) => setUserName(target.value)}
+            type="text"
+            value={username}
+            name="Username"
+            onChange={({ target }) => setUserName(target.value)}
           />
         </div>
         <div>
           password
           <input
-           type="password"
-           value={password}
-           name="Password"
-           onChange={({target}) => setPassword(target.value)}
+            type="password"
+            value={password}
+            name="Password"
+            onChange={({ target }) => setPassword(target.value)}
           />
         </div>
         <button type='submit'>login</button>
@@ -120,7 +119,7 @@ const App = () => {
       <div>{user.name} logged in <button onClick={handleLogout}>logout</button></div>
       <Toggleable buttonLabel="create new blog" ref={blogFormRef}>
         <BlogForm createBlog={createBlog}></BlogForm>
-      </Toggleable> 
+      </Toggleable>
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} user={user} changeLikes={changeLikes} delBlog={delBlog} />
       )}
@@ -128,7 +127,7 @@ const App = () => {
   )
   if (user === null) {
     return loginForm()
-  } 
+  }
   return blogList()
 }
 
