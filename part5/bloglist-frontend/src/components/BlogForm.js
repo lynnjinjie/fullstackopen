@@ -26,6 +26,7 @@ const NoteForm = ({ createBlog }) => {
             type="text"
             value={title}
             name="Title"
+            placeholder='write a title'
             onChange={({ target }) => setTitle(target.value)}
           />
         </div>
