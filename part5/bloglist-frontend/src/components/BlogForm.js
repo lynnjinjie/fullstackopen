@@ -57,7 +57,7 @@ const NoteForm = ({ createBlog }) => {
             onChange={({ target }) => setLike(target.value)}
           />
         </div>
-        <button type='submit'>create</button>
+        <button id="create-btn" type='submit'>create</button>
       </form>
     </div>
   )

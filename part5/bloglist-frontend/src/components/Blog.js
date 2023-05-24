@@ -39,10 +39,10 @@ const Blog = ({ blog, user, changeLikes, delBlog }) => {
   }
 
   return  (
-    <div style={blogStyle}>
+    <div style={blogStyle} className='blog'>
       <div>
         <span>{blog.title}</span>
-        <span>{blog.author}</span>
+        <span style={{ 'color': 'red' }}>{blog.author}</span>
         <button className='toggleBlog' onClick={toggleVisible}>{visible ? 'hide' : 'view'}</button>
       </div>
       <div className='blogContent' style={{ display: visible ? '' : 'none' }}>

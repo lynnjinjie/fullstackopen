@@ -13,6 +13,11 @@ app.use(tokenExtractor)
 app.use('/api/blogs', blogListRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
+// 测试
+if (process.env.NODE_ENV === 'test') {
+  const testingRouter = require('./controllers/testing')
+  app.use('/api/testing', testingRouter)
+}
 const config = require('./utils/config')
 const mongoose = require('mongoose')
 const mongoUrl = config.MONGODB_URI
