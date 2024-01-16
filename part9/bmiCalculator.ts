@@ -1,7 +1,7 @@
 const height = Number(process.argv[2])
 const weight = Number(process.argv[3])
 
-function calculateBmi(height: number, weight: number): string {
+export function calculateBmi(height: number, weight: number): string {
   const BMI = weight / (height / 100) ** 2
   if (BMI < 16) {
     return 'Underweight'
